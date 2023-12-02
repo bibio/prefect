@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  prefect:
+    build: .
+    command: "server start"
+    entrypoint: "prefect"
+    # platform: linux/amd64
+    depends_on:
+      - db
+    ports:
+      - "14200:4200"
+    volumes:
+      - ./:/prefect
+    working_dir: /prefect
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://postgres:passw0rd@db:5432/prefect"
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_URL: "http://127.0.0.1:4200/api"
+      PREFECT_UI_ENABLED: "true"
+  db:
+    image: postgres:latest
+    container_name: prefect_db
+    volumes:
+      - prefectdb:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: passw0rd
+      POSTGRES_DB: prefect
+volumes:
+  prefectdb:
+    driver: local
